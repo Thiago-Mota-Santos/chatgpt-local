@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 
 export default function Home() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
-  const [selectedConversation, setSelectedConversation] = useState<Conversation>();
+  const [selectedConversation, setSelectedConversation] =
+    useState<Conversation>();
   const [loading, setLoading] = useState<boolean>(false);
   const [model, setModel] = useState<OpenAIModel>(OpenAIModel.GPT_3_5);
   const [lightMode, setLightMode] = useState<"dark" | "light">("dark");
@@ -16,7 +17,7 @@ export default function Home() {
     if (selectedConversation) {
       let updatedConversation: Conversation = {
         ...selectedConversation,
-        messages: [...selectedConversation.messages, message]
+        messages: [...selectedConversation.messages, message],
       };
 
       setSelectedConversation(updatedConversation);
@@ -26,12 +27,12 @@ export default function Home() {
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           model,
-          messages: updatedConversation.messages
-        })
+          messages: updatedConversation.messages,
+        }),
       });
 
       if (!response.ok) {
@@ -62,44 +63,54 @@ export default function Home() {
 
         if (isFirst) {
           isFirst = false;
-          const updatedMessages: Message[] = [...updatedConversation.messages, { role: "assistant", content: chunkValue }];
+          const updatedMessages: Message[] = [
+            ...updatedConversation.messages,
+            { role: "assistant", content: chunkValue },
+          ];
 
           updatedConversation = {
             ...updatedConversation,
-            messages: updatedMessages
+            messages: updatedMessages,
           };
 
           setSelectedConversation(updatedConversation);
         } else {
-          const updatedMessages: Message[] = updatedConversation.messages.map((message, index) => {
-            if (index === updatedConversation.messages.length - 1) {
-              return {
-                ...message,
-                content: text
-              };
-            }
+          const updatedMessages: Message[] = updatedConversation.messages.map(
+            (message, index) => {
+              if (index === updatedConversation.messages.length - 1) {
+                return {
+                  ...message,
+                  content: text,
+                };
+              }
 
-            return message;
-          });
+              return message;
+            }
+          );
 
           updatedConversation = {
             ...updatedConversation,
-            messages: updatedMessages
+            messages: updatedMessages,
           };
 
           setSelectedConversation(updatedConversation);
         }
       }
 
-      localStorage.setItem("selectedConversation", JSON.stringify(updatedConversation));
+      localStorage.setItem(
+        "selectedConversation",
+        JSON.stringify(updatedConversation)
+      );
 
-      const updatedConversations: Conversation[] = conversations.map((conversation) => {
-        if (conversation.id === selectedConversation.id) {
-          return updatedConversation;
+      const updatedConversations: Conversation[] = conversations.map(
+        (conversation) => {
+          if (conversation.id === selectedConversation.id) {
+            return updatedConversation;
+          }
+
+          return conversation;
         }
-
-        return conversation;
-      });
+      );
 
       if (updatedConversations.length === 0) {
         updatedConversations.push(updatedConversation);
@@ -107,7 +118,10 @@ export default function Home() {
 
       setConversations(updatedConversations);
 
-      localStorage.setItem("conversationHistory", JSON.stringify(updatedConversations));
+      localStorage.setItem(
+        "conversationHistory",
+        JSON.stringify(updatedConversations)
+      );
 
       setDisabled(false);
     }
@@ -124,15 +138,21 @@ export default function Home() {
     const newConversation: Conversation = {
       id: lastConversation ? lastConversation.id + 1 : 1,
       name: "",
-      messages: []
+      messages: [],
     };
 
     const updatedConversations = [...conversations, newConversation];
     setConversations(updatedConversations);
-    localStorage.setItem("conversationHistory", JSON.stringify(updatedConversations));
+    localStorage.setItem(
+      "conversationHistory",
+      JSON.stringify(updatedConversations)
+    );
 
     setSelectedConversation(newConversation);
-    localStorage.setItem("selectedConversation", JSON.stringify(newConversation));
+    localStorage.setItem(
+      "selectedConversation",
+      JSON.stringify(newConversation)
+    );
 
     setModel(OpenAIModel.GPT_3_5);
     setLoading(false);
@@ -144,18 +164,26 @@ export default function Home() {
   };
 
   const handleDeleteConversation = (conversation: Conversation) => {
-    const updatedConversations = conversations.filter((c) => c.id !== conversation.id);
+    const updatedConversations = conversations.filter(
+      (c) => c.id !== conversation.id
+    );
     setConversations(updatedConversations);
-    localStorage.setItem("conversationHistory", JSON.stringify(updatedConversations));
+    localStorage.setItem(
+      "conversationHistory",
+      JSON.stringify(updatedConversations)
+    );
 
     if (updatedConversations.length > 0) {
       setSelectedConversation(updatedConversations[0]);
-      localStorage.setItem("selectedConversation", JSON.stringify(updatedConversations[0]));
+      localStorage.setItem(
+        "selectedConversation",
+        JSON.stringify(updatedConversations[0])
+      );
     } else {
       setSelectedConversation({
         id: 1,
         name: "",
-        messages: []
+        messages: [],
       });
       localStorage.removeItem("selectedConversation");
     }
@@ -180,7 +208,7 @@ export default function Home() {
       setSelectedConversation({
         id: 1,
         name: "",
-        messages: []
+        messages: [],
       });
     }
   }, []);
@@ -188,19 +216,13 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Chatbot UI Pro</title>
+        <title>ChatLel GPT-4</title>
         <meta
           name="description"
           content="An advanced chatbot starter kit for OpenAI's chat model using Next.js, TypeScript, and Tailwind CSS."
         />
-        <meta
-          name="viewport"
-          content="width=device-width, initial-scale=1"
-        />
-        <link
-          rel="icon"
-          href="/favicon.ico"
-        />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link rel="icon" href="/favicon.ico" />
       </Head>
 
       {selectedConversation && (
